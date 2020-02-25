@@ -50,6 +50,7 @@ def transform_bovada_data(extracted_data):
 
 def transform_fangraphs_data(df):
     transform_data = [{'team': k, 'fangraphs_wins': (162 * .294) + v} for k, v in zip(df['Team'], df['WAR'])]
+    transform_data.pop()
     return transform_data
 
 def extract_pecota_data(data_frame):
@@ -91,6 +92,28 @@ def calculate_avg_win_predictions(merged_data):
         team_data['avg_predicted_wins'] = (team_data['pecota_wins'] + team_data['fangraphs_wins']) / 2 
     return merged_data
 
+def merge_all_data_sources(fangraphs_data, pecota_data, bovada_data):
+    final_data = []
+    for f_data in fangraphs_data:
+        for p_data in pecota_data:
+            for b_data in bovada_data:
+                if f_data['team'] in p_data['team'] and f_data['team'] in b_data['team']:
+                    final_data.append({'team': f_data['team'], 'fangraphs_wins': f_data['fangraphs_wins'], 'pecota_wins': p_data['pecota_wins'], 'bovada_wins': b_data['bovada_wins']})
+    return final_data
+
+def transform_final_data(merged_final_data):
+    for data in merged_final_data:
+        data['avg_predicted_wins'] = (data['pecota_wins'] + data['fangraphs_wins']) / 2
+        data['predicted_vs_projected_win_diff'] = abs(data['avg_predicted_wins'] - data['bovada_wins'])
+    return merged_final_data
+
+def find_value_teams(final_data):
+    value_teams = []
+    for teams in final_data:
+        if teams['predicted_vs_projected_win_diff'] >= 5:
+            value_teams.append(teams)
+    return value_teams
+            
 def update_final_data_structure_with_current_year(data_structure, final_data):
     x = len(data_structure)
     current_year = datetime.datetime.now()
@@ -117,14 +140,15 @@ bv_html = get_html_content(predicted_wins_url)
 bv_json = bovada_json(bv_html)
 bv_df = create_data_frame_from_json(bv_json)
 e_bvdf = extract_bovada_wins_data(bv_df)
-t_bvd = transform_bovada_data(e_bvdf)
+t_bvdf = transform_bovada_data(e_bvdf)
 
 #merge_pecandfandata = merge_pecota_and_fangraphs_data(t_pdf, t_fdf)
 #add_year_to_final_data = update_final_data_structure_with_current_year(final_data_struc_for_db, merge_pecandfandata)
-merged_data = merge_all_data_frames(t_bvd, t_pdf, t_fdf)
-import pdb;pdb.set_trace()
-print('a')
-# need to get predicted total wins and add into final data structure
+#merge_data = merge_all_data_frames(t_bvdf, t_pdf, t_fdf)
+merged_data = merge_all_data_sources(t_fdf, t_pdf, t_bvdf)
+t_fd = transform_final_data(merged_data)
+value_teams = find_value_teams(t_fd)
+
 
 
 
