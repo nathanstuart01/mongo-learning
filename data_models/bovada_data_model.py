@@ -8,9 +8,9 @@ class BovadaDataModel(DataExtractor):
         bv_json = bv_json[0]['events']
         return bv_json
 
-    def extract_bovada_data(self, df):
-        bv_teams = list(df['description'][0:30])
-        bv_wins = [float(wins[0]['markets'][0]['outcomes'][0]['description'].strip('Over ')) for wins in df['displayGroups'][0:30]]
+    def extract_bovada_data(self, df, number_of_futures_teams):
+        bv_teams = list(df['description'][0:number_of_futures_teams])
+        bv_wins = [float(wins[0]['markets'][0]['outcomes'][0]['description'].strip('Over ')) for wins in df['displayGroups'][0:number_of_futures_teams]]
         bv_data = dict(zip(bv_teams, bv_wins))
         return bv_data
 
