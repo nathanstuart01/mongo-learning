@@ -24,7 +24,7 @@ bovada_worker = BovadaDataModel(data_urls['bovada_data_url'])
 bovada_html = bovada_worker.get_html_content(bovada_worker.url)
 extract_bovada_json = bovada_worker.extract_bovada_json(bovada_html)
 bovada_data_frame = bovada_worker.create_data_frame_from_json(extract_bovada_json)
-extract_bovada_data = bovada_worker.extract_bovada_data(bovada_data_frame)
+extract_bovada_data = bovada_worker.extract_bovada_data(bovada_data_frame, 29)
 transform_bovada_data = bovada_worker.transform_bovada_data(extract_bovada_data)
 
 # analyze data for value teams 
