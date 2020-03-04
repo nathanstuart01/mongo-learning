@@ -5,6 +5,17 @@ from data_tools.data_transformer import DataTransformer
 
 from data_sources.data_urls import data_urls
 
+def create_workers(classes_to_instantiate, urls):
+    workers = []
+    for worker_class in classes_to_instantiate:
+        for url in urls:
+            worker = worker_class(url)
+            workers.append(worker)
+            #testy testy
+    return workers
+
+def get_raw_data(c):
+
 # get fangraphs data
 fangraphs_worker = FangraphsDataModel(data_urls['fangraphs_data_url'])
 fangraphs_html = fangraphs_worker.get_html_content(fangraphs_worker.url)
@@ -24,7 +35,7 @@ bovada_worker = BovadaDataModel(data_urls['bovada_data_url'])
 bovada_html = bovada_worker.get_html_content(bovada_worker.url)
 extract_bovada_json = bovada_worker.extract_bovada_json(bovada_html)
 bovada_data_frame = bovada_worker.create_data_frame_from_json(extract_bovada_json)
-extract_bovada_data = bovada_worker.extract_bovada_data(bovada_data_frame)
+extract_bovada_data = bovada_worker.extract_bovada_data(bovada_data_frame, 29)
 transform_bovada_data = bovada_worker.transform_bovada_data(extract_bovada_data)
 
 # analyze data for value teams 
@@ -32,6 +43,11 @@ data_transformer = DataTransformer(transform_fangraphs_data, transform_pecota_da
 merge_data = data_transformer.merge_all_data_sources(data_transformer.fangraphs_data, data_transformer.pecota_data, data_transformer.bovada_data)
 transform_data = data_transformer.transform_final_data(merge_data)
 analyze_data = data_transformer.find_value_teams(transform_data)
+import pdb;pdb.set_trace()
 print(analyze_data)
 
 # prepare data to send to db
+
+# first create an instance of a class with each url
+def get_current_data(class_to_create, url_to_extract):
+    worker = 
